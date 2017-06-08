@@ -48,7 +48,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     """Setup the Monoprice platform."""
     host = config.get(CONF_HOST)
     port = config.get(CONF_PORT)
-    keypad = config.get('keypad')
+    keypad = config.get('keypad', '70')
 
     if host is None or port is None:
         _LOGGER.error("Invalid config. Expected %s and %s",
