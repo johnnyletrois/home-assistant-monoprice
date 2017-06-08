@@ -55,9 +55,9 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
                       CONF_HOST, CONF_PORT)
         return False
 
-    from monoprice import monoprice
+    from monoprice6z import monoprice6z
 
-    mono = monoprice.Monoprice(host, port)
+    mono = monoprice6z.Monoprice(host, port)
     mono.connect(keypad)
 
     sources = []
