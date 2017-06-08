@@ -17,7 +17,7 @@ import homeassistant.helpers.config_validation as cv
 
 REQUIREMENTS = [
     'https://github.com/johnnyletrois/monoprice6z/archive/0.0.1.zip'
-    '#monoprice==0.0.1']
+    '#monoprice6z==0.0.1']
 
 _LOGGER = logging.getLogger(__name__)
 
