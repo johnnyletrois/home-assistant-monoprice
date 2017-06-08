@@ -60,9 +60,9 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     mono = monoprice6z.Monoprice(host, port)
     mono.connect()
 
-    sources = []
-    for source in config[CONF_SOURCES]:
-        sources.append(source['name'])
+    #sources = []
+    #for source in config[CONF_SOURCES]:
+    #    sources.append(source['name'])
 
     if mono.is_connected():
         for zone_id, extra in config[CONF_ZONES].items():
