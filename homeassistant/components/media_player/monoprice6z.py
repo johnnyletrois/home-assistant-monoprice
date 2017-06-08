@@ -1,5 +1,5 @@
 """
-Support for interfacing with Russound via RNET Protocol.
+Support for interfacing with Monoprice Six Zone WHA controller.
 
 For more details about this platform, please refer to the documentation at
 https://home-assistant.io/components/media_player.russound_rnet/
@@ -16,15 +16,15 @@ from homeassistant.const import (
 import homeassistant.helpers.config_validation as cv
 
 REQUIREMENTS = [
-    'https://github.com/laf/russound/archive/0.1.6.zip'
-    '#russound==0.1.6']
+    'https://github.com/johnnyletrois/monoprice6z/archive/0.0.1.zip'
+    '#monoprice==0.0.1']
 
 _LOGGER = logging.getLogger(__name__)
 
 CONF_ZONES = 'zones'
 CONF_SOURCES = 'sources'
 
-SUPPORT_RUSSOUND = SUPPORT_VOLUME_MUTE | SUPPORT_VOLUME_SET | \
+SUPPORT_MONOPRICE = SUPPORT_VOLUME_MUTE | SUPPORT_VOLUME_SET | \
                      SUPPORT_TURN_OFF | SUPPORT_SELECT_SOURCE
 
 ZONE_SCHEMA = vol.Schema({
@@ -45,7 +45,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    """Setup the Russound RNET platform."""
+    """Setup the Monoprice platform."""
     host = config.get(CONF_HOST)
     port = config.get(CONF_PORT)
     keypad = config.get('keypad', '70')
@@ -55,32 +55,32 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
                       CONF_HOST, CONF_PORT)
         return False
 
-    from russound import russound
+    from monoprice import monoprice
 
-    russ = russound.Russound(host, port)
-    russ.connect(keypad)
+    mono = monoprice.Monoprice(host, port)
+    mono.connect(keypad)
 
     sources = []
     for source in config[CONF_SOURCES]:
         sources.append(source['name'])
 
-    if russ.is_connected():
+    if mono.is_connected():
         for zone_id, extra in config[CONF_ZONES].items():
-            add_devices([RussoundRNETDevice(
-                hass, russ, sources, zone_id, extra)])
+            add_devices([MonopriceDevice(
+                hass, mono, sources, zone_id, extra)])
     else:
         _LOGGER.error('Not connected to %s:%s', host, port)
 
 
 # pylint: disable=abstract-method, too-many-public-methods,
 # pylint: disable=too-many-instance-attributes, too-many-arguments
-class RussoundRNETDevice(MediaPlayerDevice):
-    """Representation of a Russound RNET device."""
+class MonopriceDevice(MediaPlayerDevice):
+    """Representation of a Monoprice device."""
 
-    def __init__(self, hass, russ, sources, zone_id, extra):
-        """Initialise the Russound RNET device."""
+    def __init__(self, hass, mono, sources, zone_id, extra):
+        """Initialise the Monoprice device."""
         self._name = extra['name']
-        self._russ = russ
+        self._mono = mono
         self._state = STATE_OFF
         self._sources = sources
         self._zone_id = zone_id
@@ -99,7 +99,7 @@ class RussoundRNETDevice(MediaPlayerDevice):
     @property
     def supported_media_commands(self):
         """Flag of media commands that are supported."""
-        return SUPPORT_RUSSOUND
+        return SUPPORT_MONOPRICE
 
     @property
     def volume_level(self):
@@ -109,27 +109,27 @@ class RussoundRNETDevice(MediaPlayerDevice):
     def set_volume_level(self, volume):
         """Set volume level, range 0..1."""
         self._volume = volume * 100
-        self._russ.set_volume('1', self._zone_id, self._volume)
+        self._mono.set_volume('1', self._zone_id, self._volume)
 
     def turn_on(self):
         """Turn the media player on."""
-        self._russ.set_power('1', self._zone_id, '1')
+        self._mono.set_power('1', self._zone_id, '1')
         self._state = STATE_ON
 
     def turn_off(self):
         """Turn off media player."""
-        self._russ.set_power('1', self._zone_id, '0')
+        self._mono.set_power('1', self._zone_id, '0')
         self._state = STATE_OFF
 
     def mute_volume(self, mute):
         """Send mute command."""
-        self._russ.toggle_mute('1', self._zone_id)
+        self._mono.toggle_mute('1', self._zone_id)
 
     def select_source(self, source):
         """Set the input source."""
         if source in self._sources:
             index = self._sources.index(source)+1
-            self._russ.set_source('1', self._zone_id, index)
+            self._mono.set_source('1', self._zone_id, index)
 
     @property
     def source_list(self):
