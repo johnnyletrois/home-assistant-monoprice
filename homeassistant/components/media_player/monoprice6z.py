@@ -58,7 +58,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     from monoprice6z import monoprice6z
 
     mono = monoprice6z.Monoprice(host, port)
-    mono.connect(keypad)
+    mono.connect()
 
     sources = []
     for source in config[CONF_SOURCES]:
